@@ -1,6 +1,7 @@
 from twisted.internet import defer, reactor
 import utils as u
 import cv2
+import os
 
 # processes image parts
 
@@ -9,10 +10,18 @@ class ImagePart:
 	@staticmethod
 	def process_images(label):
 		file_name = ImagePart.join_image_file_parts(label)
+		base_name = os.path.splitext(file_name)[0]
+		index = 1
 		if file_name:
 			video_capture = cv2.VideoCapture(file_name)
 			if video_capture.isOpened():
-				print 'video capture is open'
+				retval, frame = video_capture.read()
+				while retval:
+					image_file_name = base_name + str(index) + ".png"
+					cv2.imwrite(image_file_name, frame)
+					index += 1
+					retval, frame = video_capture.read()
+					print 'retval', retval, 'index', index
 				video_capture.release()
 	@staticmethod
 	def join_image_file_parts(label):

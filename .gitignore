@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Images
+.png
+.jpg
+.mp4
+.mp4.part.*
