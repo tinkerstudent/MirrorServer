@@ -93,3 +93,6 @@ ENV/
 .jpg
 .mp4
 .mp4.part.*
+
+# Pyc
+*.pyc

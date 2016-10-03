@@ -13,6 +13,8 @@ def status(request):
 @route('/train')
 def train(request):
 	label = request.getHeader('XX-Mirror-Label')
+	label = label and label.lower()
+	label = label and label.replace(' ', '')
 	counter = int(request.getHeader('XX-Mirror-Counter'))
 	total = int(request.getHeader('XX-Mirror-Total'))
 	bytes = request.content.read()

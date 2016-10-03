@@ -2,6 +2,7 @@ from twisted.internet import defer, reactor
 import utils as u
 import cv2
 import os
+import sys
 
 # processes image parts
 
@@ -10,24 +11,34 @@ class ImagePart:
 	@staticmethod
 	def process_images(label):
 		file_name = ImagePart.join_image_file_parts(label)
-		base_name = os.path.splitext(file_name)[0]
-		index = 1
 		if file_name:
+			if not os.path.isdir(label):
+				os.makedirs(label)
 			video_capture = cv2.VideoCapture(file_name)
 			if video_capture.isOpened():
-				retval, frame = video_capture.read()
-				while retval:
-					image_file_name = base_name + str(index) + ".png"
-					cv2.imwrite(image_file_name, frame)
-					index += 1
+				total_frames = int(video_capture.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+				try:
+					print "Processing label '%s'" % (label)
 					retval, frame = video_capture.read()
-					print 'retval', retval, 'index', index
-				video_capture.release()
+					if retval:
+						index = 0
+						u.start_progress_text('Total %d, Processed: %d' % (total_frames, index))
+						while retval:
+							image_file_name = "frame" + str(index) + ".png"
+							image_file_path = os.path.join(label, image_file_name)
+							cv2.imwrite(image_file_path, frame)
+							u.update_progress_text(index)
+							retval, frame = video_capture.read()
+							index += 1
+				finally:
+					video_capture.release()
+					u.stop_progress_text('%d frames processed' % (total_frames))
 	@staticmethod
 	def join_image_file_parts(label):
 		image_parts = ImagePart._image_parts[label]
 		sorted(image_parts, key=lambda image_part: image_part._counter)
-		if len(image_parts) > 0:
+		total_parts = len(image_parts)
+		if total_parts > 0:
 			image_part = image_parts[0]
 			file_name = image_part._base_file_name
 			file_ = open(file_name, 'wb')

@@ -1,5 +1,6 @@
 import subprocess
 import re
+import sys
 
 KB = 1024
 MB = 1024 * KB
@@ -26,3 +27,19 @@ def get_ip():
 			eth_end_index = output.index("en" + (eth_num+1))
 	return ip
 
+def start_progress_text(text):
+	sys.__stdout__.write(text)
+	sys.__stdout__.flush()
+
+def stop_progress_text(text):
+	sys.__stdout__.write('\n')
+	sys.__stdout__.write(text)
+	sys.__stdout__.write('\n')
+	sys.__stdout__.flush()
+
+def update_progress_text(index):
+	if index > 0:
+		bspace_len = len(str(index-1))
+		sys.__stdout__.write('\b' * (bspace_len)),
+		sys.__stdout__.write(str(index)),
+		sys.__stdout__.flush()
